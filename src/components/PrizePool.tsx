@@ -1,8 +1,23 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { DollarSign, TrendingUp, Heart, ExternalLink } from "lucide-react";
+import { DollarSign, TrendingUp, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import DonationModal from "./DonationModal";
 
 const PrizePool = () => {
+  const [isDonationOpen, setIsDonationOpen] = useState(false);
+  const [totalDonations, setTotalDonations] = useState(0);
+  const [recentDonations, setRecentDonations] = useState<Array<{ amount: number; message: string }>>([]);
+
+  const handleDonate = (amount: number, message: string) => {
+    setTotalDonations(prev => prev + amount);
+    if (message) {
+      setRecentDonations(prev => [{ amount, message }, ...prev.slice(0, 2)]);
+    }
+  };
+
+  const currentPrize = 20 + totalDonations;
+
   return (
     <section id="prizes" className="py-24 relative overflow-hidden">
       {/* Background */}
@@ -60,11 +75,36 @@ const PrizePool = () => {
               </div>
             </div>
 
-            <Button variant="gold" size="lg" className="mt-6" id="support">
+            <Button 
+              variant="gold" 
+              size="lg" 
+              className="mt-6" 
+              onClick={() => setIsDonationOpen(true)}
+            >
               <Heart className="w-5 h-5" />
-              Support via PayPal
-              <ExternalLink className="w-4 h-4 ml-1" />
+              Donate Now
             </Button>
+
+            {/* Recent Donations */}
+            {recentDonations.length > 0 && (
+              <div className="mt-6 space-y-3">
+                <h4 className="text-sm font-medium text-muted-foreground">Recent Supporters:</h4>
+                {recentDonations.map((donation, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="p-3 rounded-lg bg-white/5 border border-white/10"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Heart className="w-3 h-3 text-primary" />
+                      <span className="text-sm font-medium text-primary">${donation.amount}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground italic">"{donation.message}"</p>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </motion.div>
 
           {/* Right - Prize Display */}
@@ -83,10 +123,10 @@ const PrizePool = () => {
                   Current Prize Pool
                 </p>
                 <div className="font-display text-6xl md:text-7xl font-black text-gradient-gold">
-                  $20
+                  ${currentPrize}
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  +$0 from donations
+                  +${totalDonations} from donations
                 </p>
               </div>
 
@@ -99,33 +139,56 @@ const PrizePool = () => {
                     </div>
                     <span className="font-semibold">1st Place</span>
                   </div>
-                  <span className="font-display font-bold text-primary">$20</span>
+                  <span className="font-display font-bold text-primary">${currentPrize}</span>
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 opacity-50">
+                <div className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                  totalDonations >= 30 
+                    ? "bg-primary/10 border-primary/20" 
+                    : "bg-white/5 border-white/10 opacity-50"
+                }`}>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                      <span className="font-bold text-muted-foreground">2</span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      totalDonations >= 30 ? "bg-primary" : "bg-muted"
+                    }`}>
+                      <span className={`font-bold ${totalDonations >= 30 ? "text-primary-foreground" : "text-muted-foreground"}`}>2</span>
                     </div>
-                    <span className="font-semibold text-muted-foreground">2nd Place</span>
+                    <span className={`font-semibold ${totalDonations >= 30 ? "" : "text-muted-foreground"}`}>2nd Place</span>
                   </div>
-                  <span className="text-sm text-muted-foreground">Unlocks with donations</span>
+                  <span className="text-sm text-muted-foreground">
+                    {totalDonations >= 30 ? "$15" : "Unlocks at $30 donations"}
+                  </span>
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 opacity-50">
+                <div className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                  totalDonations >= 60 
+                    ? "bg-primary/10 border-primary/20" 
+                    : "bg-white/5 border-white/10 opacity-50"
+                }`}>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                      <span className="font-bold text-muted-foreground">3</span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      totalDonations >= 60 ? "bg-primary" : "bg-muted"
+                    }`}>
+                      <span className={`font-bold ${totalDonations >= 60 ? "text-primary-foreground" : "text-muted-foreground"}`}>3</span>
                     </div>
-                    <span className="font-semibold text-muted-foreground">3rd Place</span>
+                    <span className={`font-semibold ${totalDonations >= 60 ? "" : "text-muted-foreground"}`}>3rd Place</span>
                   </div>
-                  <span className="text-sm text-muted-foreground">Unlocks with donations</span>
+                  <span className="text-sm text-muted-foreground">
+                    {totalDonations >= 60 ? "$10" : "Unlocks at $60 donations"}
+                  </span>
                 </div>
               </div>
             </div>
           </motion.div>
         </div>
       </div>
+
+      {/* Donation Modal */}
+      <DonationModal
+        isOpen={isDonationOpen}
+        onClose={() => setIsDonationOpen(false)}
+        onDonate={handleDonate}
+      />
     </section>
   );
 };
