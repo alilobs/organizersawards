@@ -1,10 +1,14 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Trophy, ChevronDown, Sparkles, Calendar, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroSection = () => {
+  const { scrollYProgress } = useScroll();
+  const scrollOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const scrollY = useTransform(scrollYProgress, [0, 0.15], [0, 50]);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -56,28 +60,28 @@ const HeroSection = () => {
           transition={{ duration: 0.8 }}
           className="max-w-4xl mx-auto"
         >
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8"
-          >
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Voting Now Open</span>
-          </motion.div>
-
-          {/* Trophy Icon */}
+          {/* Trophy Icon on top */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-            className="relative inline-flex mb-8"
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="relative inline-flex mb-6"
           >
             <div className="absolute inset-0 bg-primary/30 blur-3xl rounded-full animate-pulse-glow" />
             <div className="relative p-6 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
               <Trophy className="w-16 h-16 md:w-20 md:h-20 text-primary" />
             </div>
+          </motion.div>
+
+          {/* Badge in middle */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+          >
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Voting Now Open</span>
           </motion.div>
 
           {/* Title */}
@@ -135,10 +139,10 @@ const HeroSection = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Button variant="gold" size="xl" asChild>
-              <Link to="/vote">
+              <a href="#vote-section">
                 <Trophy className="w-5 h-5" />
                 Start Voting
-              </Link>
+              </a>
             </Button>
             <Button variant="glass" size="xl" asChild>
               <a href="#how-it-works">
@@ -148,12 +152,10 @@ const HeroSection = () => {
           </motion.div>
         </motion.div>
 
-        {/* Scroll Indicator */}
+        {/* Scroll Indicator - follows scroll */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          style={{ opacity: scrollOpacity, y: scrollY }}
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40"
         >
           <motion.div
             animate={{ y: [0, 8, 0] }}
